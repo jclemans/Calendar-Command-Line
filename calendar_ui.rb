@@ -7,6 +7,7 @@ ActiveRecord::Base.establish_connection(YAML::load(File.open('./db/config.yml'))
 
 
 def welcome
+  binding.pry
   puts "Hello, I am your calendar. How can I help you today?"
   main_menu
 end
@@ -15,7 +16,8 @@ def main_menu
   choice = nil
   until choice == 'x'
     puts "Enter [a] to add a new event."
-    puts "      [v] to view all events."
+    puts "      [v]iew all events, [t]oday's events, [w]eek's events, or [m]onth's events."
+    puts "      [n]ext day's events"
     puts "      [e] to edit an event."
     puts "      [x] to exit."
     choice = gets.chomp
@@ -25,7 +27,16 @@ def main_menu
       add_event
     when 'v'
       clear
-      view_events
+      view_all_events
+    when 't'
+      clear
+      view_today
+    when 'w'
+      clear
+      view_week
+    when 'm'
+      clear
+      view_month
     when 'e'
       clear
       choose_event
@@ -57,7 +68,7 @@ end
 
 def choose_event
   puts "Which event do you want to edit?"
-  view_events
+  view_all_events
   choice = gets.chomp
   chosen = Event.where({description: choice}).first
   puts "What now??"
@@ -107,11 +118,35 @@ def delete_event(chosen)
   puts "'#{chosen.description}' has been eradicated from your timeline."
 end
 
-def view_events
+def view_all_events
   puts "Here is a list of all your events so far:"
+  puts "========================================\n\n"
   Event.future_events.each {|event| puts event.description + " @ " + event.start_time.to_s}
 end
 
+def view_today
+  puts "Here is what's happening today:"
+  puts "========================================\n\n"
+  Event.today_events.each {|event| puts event.description + " @ " + event.start_time.to_s}
+end
+
+def view_week
+  puts "Here are your events for the coming week:"
+  puts "========================================\n\n"
+  Event.week_events.each { |event| puts event.description + " @ " + event.start_time.to_s}
+end
+
+def view_month
+  puts "Here are your events for the coming month:"
+  puts "========================================\n\n"
+  Event.month_events.each { |event| puts event.description + " @ " + event.start_time.to_s}
+end
+
+def view_next_day(currently_viewed_day)
+  puts "Here are the next day's events:"
+  puts "========================================\n\n"
+  Event.next_day.each { |event| puts event.description + " @ " + event.start_time.to_s}
+end
 
 # OTHER STUFF ------------------
 
